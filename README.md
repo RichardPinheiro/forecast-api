@@ -11,14 +11,6 @@ conda install -c conda-forge fbprophet
 ```
 
 ## Available routes:
-
-```bash
-POST "/detect"
-  
-Expected request body:
-{
-  "<timestamp>": "<value>"
-}
 ```
 
 ```bash
@@ -26,11 +18,9 @@ POST "/forecast"
   
 Expected request body:
 {
-	"timeserie": {
-                "<timestamp>": "<value>"
-				       },
-	"future_ahead": <intValue>,
-	"frequency": "S" ("S", "M", "H", "D")
+	"fileinfo": ( file csv in format:  ds, y [column] yyyy-mm-dd) 
+    "periods": ( interval for predict in days )
+    "season_type": ( frequency ("S", "M", "H", "D"))
 }
 
 timeserie: represents your ts in terms of <key: value>
