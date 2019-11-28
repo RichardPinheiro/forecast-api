@@ -1,25 +1,35 @@
-import pandas as pd
 from fbprophet import Prophet
 from datetime import datetime
+from fbprophet.diagnostics import cross_validation, performance_metrics 
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 
-def generateJsonResult(forecastDf):
-    result = {'result': list()}
-    for _, row in forecastDf.iterrows():
-        result['result'].append({
-            'timestamp': str(row['ds']),
-            'yhat': row['yhat'],
-            'yhat_lower': row['yhat_lower'],
-            'yhat_upper': row['yhat_upper'],
-        })
-    return result
+def removeOutlier(df, cutoff, column):
+    df.loc[df[column] > cutoff, [column]] = None
+    return df
 
-def formatDictToDataframe(timeserie):
-    return {
-        # 'ds': [str(datetime.fromtimestamp(int(ts)).strftime('%Y-%m-%d %H:%M:%S')) for ts in list(timeserie.keys())],
-        'ds': [ts for ts in list(timeserie.keys())],
-        'y': list(timeserie.values())
-    }
+def discreteForecast(column, value, fileinfo, periods, season_type):
+    df = pd.read_csv(fileinfo)
+    df['Emissão'] = pd.to_datetime(df['Emissão'])
 
-def forecastTimeserie(timeserie):
-    model = Prophet().fit(pd.DataFrame.from_dict(formatDictToDataframe(timeserie['timeserie'])))
-    return generateJsonResult(model.predict(model.make_future_dataframe(periods=timeserie['future_ahead'], freq=timeserie['frequency'])))
+    forecastDataset = df[df[column]==value][['Emissão', column]].sort_values(by=['Emissão']).groupby(['Emissão']).count().reset_index()
+    model = Prophet().fit(forecastDataset.rename(columns={'Emissão': 'ds', column: 'y'}))
+    df_cv = cross_validation(model, horizon='365 days')
+    forecast = model.predict(model.make_future_dataframe(periods=periods, freq=season_type))
+
+def continousForecast(fileinfo, periods, season_type):
+    df = pd.read_csv(fileinfo, decimal=',')
+    df['Emissão'] = pd.to_datetime(df['Emissão'])
+
+    forecastDataset = df[['Emissão', 'Vl Mercad Liq']].sort_values(by=['Emissão']).groupby(['Emissão'])['Vl Mercad Liq'].sum().reset_index()
+    forecastDataset = removeOutlier(forecastDataset, 600000, 'Vl Mercad Liq')
+
+    model = Prophet().fit(forecastDataset.rename(columns={'Emissão': 'ds', continuousVar: 'y'}))
+    df_p = performance_metrics(cross_validation(model, horizon='200 days', initial='500 days', period='100 days'))
+
+    forecast = model.predict(model.make_future_dataframe(periods=periods, freq=season_type))
+    forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].to_csv('./forcast.csv')
+    # fig1 = model.plot(forecast)
+    # fig1.suptitle(value, va='baseline', fontsize=15)
+    # fig1.savefig('teste.png', bbox_inches = "tight")
