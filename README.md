@@ -11,7 +11,6 @@ conda install -c conda-forge fbprophet
 ```
 
 ## Available routes:
-```
 
 ```bash
 POST "/forecast"
