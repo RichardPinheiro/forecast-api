@@ -17,9 +17,9 @@ class Application(tornado.web.Application):
 
 if __name__ == "__main__":
 
-    app = tornado.httpserver.HTTPServer(Application())
-    app.listen(7777)
+    tornado.httpserver.HTTPServer(Application())
+    app.listen(9600)
 
-    print('Server running on port 7777')
+    print('Server running on port 9600')
 
     tornado.ioloop.IOLoop.current().start()

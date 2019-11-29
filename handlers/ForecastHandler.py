@@ -10,15 +10,15 @@ class ForecastHandler(tornado.web.RequestHandler):
         periods = tornado.escape.json_decode(self.request.body.periods)
         season_type = tornado.escape.json_decode(self.request.body.season_type)
 
-        if (not fileinfo)
+        if not fileinfo:
             return getMessageFailFileinfo()
 
-        if (not periods)
+        if not periods:
             return getMessageFailPeriods()
 
-        if (not season_type)
+        if not season_type:
             return getMessageFailSeasonType()
 
         result = continousForecast(fileinfo, periods, season_type)
 
-        self.write(result)
+        self.write('oi fiori')

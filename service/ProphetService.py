@@ -27,9 +27,6 @@ def continousForecast(fileinfo, periods, season_type):
 
     model = Prophet().fit(forecastDataset.rename(columns={'Emissão': 'ds', continuousVar: 'y'}))
     df_p = performance_metrics(cross_validation(model, horizon='200 days', initial='500 days', period='100 days'))
-
+    performance = df_p.tail[1]
     forecast = model.predict(model.make_future_dataframe(periods=periods, freq=season_type))
     forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].to_csv('./forcast.csv')
-    # fig1 = model.plot(forecast)
-    # fig1.suptitle(value, va='baseline', fontsize=15)
-    # fig1.savefig('teste.png', bbox_inches = "tight")

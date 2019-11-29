@@ -1,12 +1,10 @@
 tornado==6.0.3
 motor==1.2.1
-py-healthcheck==1.9.0
 cython
 numpy
 matplotlib
 pystan
 psycopg2-binary
-luminol
 plotly
 fbprophet
 sqlalchemy
