@@ -5,7 +5,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-def removeOutlier(df, cutoff, column):
+
+def removeOutlier(df, column):
+    std = df[column].describe()['std']
+    mean = df[column].describe()['mean']
+    cutoff = mean + 1 * std
     df.loc[df[column] > cutoff, [column]] = None
     return df
 
@@ -23,7 +27,7 @@ def continousForecast(fileinfo, periods, season_type):
     df['Emissão'] = pd.to_datetime(df['Emissão'])
 
     forecastDataset = df[['Emissão', 'Vl Mercad Liq']].sort_values(by=['Emissão']).groupby(['Emissão'])['Vl Mercad Liq'].sum().reset_index()
-    forecastDataset = removeOutlier(forecastDataset, 600000, 'Vl Mercad Liq')
+    forecastDataset = removeOutlier(forecastDataset, 'Vl Mercad Liq')
 
     model = Prophet().fit(forecastDataset.rename(columns={'Emissão': 'ds', continuousVar: 'y'}))
     df_p = performance_metrics(cross_validation(model, horizon='200 days', initial='500 days', period='100 days'))
